@@ -77,7 +77,17 @@ y_actual_1 = 1 .- y_actual;
 log_h = log(layer2);
 log_1_h = log(1 .- layer2);
 
+% this is unregularized cost function.
 J = 1/m * sum(sum(-(y_actual .* log_h + y_actual_1 .* log_1_h)));
+
+
+%adding regularization to the cost function.
+
+theta1_sum = sum(sum(Theta1(:, 2:end) .^ 2)); % first column is not taken in sum cause it is bias
+theta2_sum = sum(sum(Theta2(:, 2:end) .^ 2)); % first column is not taken in sum cause it is bias
+regularization = (lambda / (2 * m)) * (theta1_sum + theta2_sum);
+
+J = J + regularization;
 
 % -------------------------------------------------------------
 
