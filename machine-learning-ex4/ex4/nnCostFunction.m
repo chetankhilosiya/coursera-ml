@@ -94,6 +94,19 @@ J = J + regularization;
 % =========================================================================
 
 % Unroll gradients
+
+delta2 = sum(y_actual .- layer2) / m;
+delta1 = sum((delta2 * Theta2) .* sigmoidGradient(layer1_output));
+delta1 = delta1(2:end);
+
+% this is accumulated gradient for all neural network. Summation of two layer deltas.
+Del1 = delta2 + sum(layer1 * delta1');
+Del1 = Del1 ./ m;
+Theta1_grad = delta1;
+Theta2_grad = delta2;
+size(delta1)
+size(delta2)
+
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
 
