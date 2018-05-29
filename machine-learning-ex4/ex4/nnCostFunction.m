@@ -62,50 +62,60 @@ Theta2_grad = zeros(size(Theta2));
 %               and Theta2_grad from Part 2.
 %
 
-input = [ones(m, 1) X];
-layer1 = sigmoid(input * Theta1');
-layer1_output = [ones(m, 1) layer1];
-layer2 = sigmoid(layer1_output * Theta2');
-% [temp prediction] = max(layer2, [], 2);
+% call nnCostFunction(nn_params, input_layer_size, hidden_layer_size, num_labels, X, y, lambda);
 
-y_actual = zeros(m, num_labels);
+% forward propagation implementation
+a1 = [ones(m,1) X];
+% size(a1)
+% size(Theta1)
+% size(Theta2)
+
+z2 = a1 * Theta1';
+a2 = [ones(m,1) sigmoid(z2)];
+% size(a2)
+
+z3 = a2 * Theta2';
+a3 = sigmoid(z3);
+% size(a3)
+% a3(1,:)
+
+% formatting the output into vector.
+actual = zeros(m, num_labels);
 for i = 1:m
-  y_actual(i, y(i)) = 1;
-endfor
-
-y_actual_1 = 1 .- y_actual;
-log_h = log(layer2);
-log_1_h = log(1 .- layer2);
-
-% this is unregularized cost function.
-J = 1/m * sum(sum(-(y_actual .* log_h + y_actual_1 .* log_1_h)));
+  actual(i, y(i)) = 1;
+end
+% size(actual)
 
 
-%adding regularization to the cost function.
+% computing cost
 
-theta1_sum = sum(sum(Theta1(:, 2:end) .^ 2)); % first column is not taken in sum cause it is bias
-theta2_sum = sum(sum(Theta2(:, 2:end) .^ 2)); % first column is not taken in sum cause it is bias
-regularization = (lambda / (2 * m)) * (theta1_sum + theta2_sum);
+log_h = log(a3);
+log_1_h = log(1 .- a3);
 
-J = J + regularization;
+J = (1/m) * -sum(sum((actual .* log_h) + ((1 .- actual) .* log_1_h )));
+
+
+% implementing the backpropagation with for loop.
+
+delta3 = zeros(1, num_labels);
+delta2 = zeros(size(Theta2));
+
+for i = 1:m
+  delta3 = a3(i, :) - actual(i, :);
+  delta2 = delta3 * Theta2(:, 2:end) .* sigmoidGradient(z2(i));
+  Theta2_grad += delta3' * a2(i, :);
+  Theta1_grad += delta2' * a1(i, :);
+end
+
+Theta1_grad = Theta1_grad ./ m;
+Theta2_grad = Theta2_grad ./ m;
+
 
 % -------------------------------------------------------------
 
 % =========================================================================
 
 % Unroll gradients
-
-delta2 = sum(y_actual .- layer2) / m;
-delta1 = sum((delta2 * Theta2) .* sigmoidGradient(layer1_output));
-delta1 = delta1(2:end);
-
-% this is accumulated gradient for all neural network. Summation of two layer deltas.
-Del1 = delta2 + sum(layer1 * delta1');
-Del1 = Del1 ./ m;
-Theta1_grad = delta1;
-Theta2_grad = delta2;
-size(delta1)
-size(delta2)
 
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
 
