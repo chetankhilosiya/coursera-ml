@@ -66,18 +66,12 @@ Theta2_grad = zeros(size(Theta2));
 
 % forward propagation implementation
 a1 = [ones(m,1) X];
-% size(a1)
-% size(Theta1)
-% size(Theta2)
 
 z2 = a1 * Theta1';
 a2 = [ones(m,1) sigmoid(z2)];
-% size(a2)
 
 z3 = a2 * Theta2';
 a3 = sigmoid(z3);
-% size(a3)
-% a3(1,:)
 
 % formatting the output into vector.
 actual = zeros(m, num_labels);
@@ -92,24 +86,43 @@ end
 log_h = log(a3);
 log_1_h = log(1 .- a3);
 
+% cost function without regularization
 J = (1/m) * -sum(sum((actual .* log_h) + ((1 .- actual) .* log_1_h )));
+
+% regularization in cost function
+
+Theta1_no_bias = Theta1(:, 2:end);
+Theta2_no_bias = Theta2(:, 2:end);
+
+J += (lambda/ (2*m)) * (sum(sum(Theta1_no_bias .^ 2)) + sum(sum(Theta2_no_bias .^ 2)));
 
 
 % implementing the backpropagation with for loop.
 
-delta3 = zeros(1, num_labels);
-delta2 = zeros(size(Theta2));
-
 for i = 1:m
-  delta3 = a3(i, :) - actual(i, :);
-  delta2 = delta3 * Theta2(:, 2:end) .* sigmoidGradient(z2(i));
-  Theta2_grad += delta3' * a2(i, :);
-  Theta1_grad += delta2' * a1(i, :);
+  a1_temp = a1(i, :);
+  z2_temp = z2(i, :);
+  a2_temp = a2(i, :);
+  z3_temp = z3(i, :);
+  a3_temp = a3(i, :);
+
+  % calculating delta (difference between prediction and actual values) without regularization
+  delta3 = a3_temp - actual(i, :);
+  delta2 = delta3 * Theta2_no_bias .* sigmoidGradient(z2_temp);
+  Theta2_grad += delta3' * a2_temp;
+  Theta1_grad += delta2' * a1_temp;
 end
+
 
 Theta1_grad = Theta1_grad ./ m;
 Theta2_grad = Theta2_grad ./ m;
 
+% adding regularization to gradients
+
+Theta1_grad(:, 2:end) += (lambda / m) .* Theta1_no_bias;
+Theta2_grad(:, 2:end) += (lambda / m) .* Theta2_no_bias;
+
+% Theta1_grad += ;
 
 % -------------------------------------------------------------
 
