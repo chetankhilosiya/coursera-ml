@@ -1,0 +1,21 @@
+# Created by Octave 4.2.2, Wed Jun 06 14:45:00 2018 IST <chetan@localhost.localdomain>
+# name: X
+# type: matrix
+# rows: 4
+# columns: 2
+ 0 0
+ 0 1
+ 1 0
+ 1 1
+
+
+# name: y
+# type: matrix
+# rows: 4
+# columns: 1
+ 0
+ 0
+ 0
+ 1
+
+
